@@ -1,0 +1,4 @@
+module opendht_c [system] {
+  umbrella header "opendht_c.h"
+  export *
+}

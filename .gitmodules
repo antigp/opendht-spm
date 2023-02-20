@@ -1,0 +1,3 @@
+[submodule "submodules/opendht"]
+	path = submodules/opendht
+	url = https://github.com/savoirfairelinux/opendht.git

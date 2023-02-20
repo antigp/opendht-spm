@@ -1,0 +1,50 @@
+{
+  "pins" : [
+    {
+      "identity" : "asio-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/antigp/asio-spm.git",
+      "state" : {
+        "revision" : "75d9a3c895e7a578ed56c8d12337ee2790fc0d46",
+        "version" : "1.24.0"
+      }
+    },
+    {
+      "identity" : "iosboostframework",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Cogosense/iOSBoostFramework.git",
+      "state" : {
+        "revision" : "20702879518cc0a5d543754d3a8fd25da109daa5",
+        "version" : "1.81.2"
+      }
+    },
+    {
+      "identity" : "msgpack-c-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/antigp/msgpack-c-spm.git",
+      "state" : {
+        "revision" : "23c604db92615e4b0e66fa104f67269344840c2b",
+        "version" : "2.1.5"
+      }
+    },
+    {
+      "identity" : "openssl",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krzyzanowskim/OpenSSL.git",
+      "state" : {
+        "revision" : "87f41bf9488e7dd2b0de2ab97cb3eafc7304e0e6",
+        "version" : "1.1.2000"
+      }
+    },
+    {
+      "identity" : "phc-winner-argon2",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/P-H-C/phc-winner-argon2.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "f57e61e19229e23c4445b85494dbf7c07de721cb"
+      }
+    }
+  ],
+  "version" : 2
+}
