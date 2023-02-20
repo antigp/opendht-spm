@@ -17,7 +17,7 @@ let package = Package(
         .package(url: "https://github.com/antigp/msgpack-c-spm.git", from: "2.1.5"),
         .package(url: "https://github.com/antigp/asio-spm.git", from: "1.24.0"),
         .package(url: "https://github.com/krzyzanowskim/OpenSSL.git", .upToNextMinor(from: "1.1.1700")),
-        .package(url: "https://github.com/P-H-C/phc-winner-argon2.git", branch: "master")
+        .package(url: "https://github.com/antigp/phc-winner-argon2.git", .upToNextMajor(from: "1.0.0"))
     ],
     targets: [
         .target(
