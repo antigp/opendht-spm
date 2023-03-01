@@ -5,13 +5,17 @@ import PackageDescription
 
 let package = Package(
     name: "OpenDHT",
+    platforms: [.iOS(.v13), .macOS(.v13)],
     products: [
         .library(
             name: "opendht_c",
             targets: ["opendht_c"]),
         .library(
             name: "opendht_cpp",
-            targets: ["opendht_cpp"])
+            targets: ["opendht_cpp"]),
+        .library(
+            name: "opendht_swift",
+            targets: ["opendht_swift"])
     ],
     dependencies: [
         .package(url: "https://github.com/antigp/msgpack-c-spm.git", from: "2.1.5"),
@@ -43,6 +47,7 @@ let package = Package(
             ],
             sources: ["src"],
             cxxSettings: [
+                .define("OPENDHT_PEER_DISCOVERY"),
                 .headerSearchPath("include/opendht"),
                 .headerSearchPath("../../Frameworks/nettle.xcframework/ios-arm64/nettle.framework/Headers"),
                 .headerSearchPath("../../Frameworks/libtasn1.xcframework/ios-arm64/libtasn1.framework/Headers"),
@@ -63,10 +68,19 @@ let package = Package(
                 .product(name: "argon2", package: "phc-winner-argon2")
             ],
             sources: ["src"],
-            cSettings: [],
+            cSettings: [
+                .define("OPENDHT_PEER_DISCOVERY")
+            ],
             cxxSettings: [
+                .define("OPENDHT_PEER_DISCOVERY"),
                 .headerSearchPath("include"),
                 .headerSearchPath("../../Frameworks/gnutls.xcframework/ios-arm64/gnutls.framework/Headers"),
+            ]
+        ),
+        .target(
+            name: "opendht_swift",
+            dependencies: [
+                "opendht_c"
             ]
         ),
         .binaryTarget(
