@@ -26,10 +26,11 @@ inline dht_infohash dht_infohash_to_c(const dht::InfoHash& h) {
     return ret;
 }
 
-void dht_runner_get_with_filter(dht_runner* r, const dht_infohash* h, dht_get_cb cb, dht_done_cb done_cb, void* cb_user_data, dht_filter_cb filter_cb) {
+void dht_runner_get_with_filter(dht_runner* r, const dht_infohash* h, dht_get_cb cb, dht_done_cb done_cb, void* cb_user_data, dht_filter_cb filter_cb, const char* w) {
     auto runner = reinterpret_cast<dht::DhtRunner*>(r);
     auto hash = reinterpret_cast<const dht::InfoHash*>(h);
     auto filter = reinterpret_cast<const dht::Value::Filter*>(h);
+    dht::Where where = dht::Where(w);
     runner->get(*hash, [cb,cb_user_data](std::shared_ptr<dht::Value> value){
         return cb(reinterpret_cast<const dht_value*>(&value), cb_user_data);
     }, [done_cb, cb_user_data](bool ok){
@@ -38,7 +39,43 @@ void dht_runner_get_with_filter(dht_runner* r, const dht_infohash* h, dht_get_cb
     }, [filter_cb, cb_user_data](const dht::Value& value){
         auto myValue = &value;
         return filter_cb(reinterpret_cast<dht_value *>(&myValue), cb_user_data);
-    });
+    }, where);
+}
+
+struct ScopeGuardCb {
+    ScopeGuardCb(dht_shutdown_cb cb, void* data)
+     : onDestroy(cb), userData(data) {}
+
+    ~ScopeGuardCb() {
+        if (onDestroy)
+            onDestroy((void*)userData);
+    }
+private:
+    const dht_shutdown_cb onDestroy;
+    void const* userData;
+};
+
+dht_op_token* dht_runner_listen_with_filter(dht_runner* r, const dht_infohash* h, dht_value_cb cb, dht_shutdown_cb done_cb, void* cb_user_data, dht_filter_cb filter_cb, const char* w) {
+    auto runner = reinterpret_cast<dht::DhtRunner*>(r);
+    auto hash = reinterpret_cast<const dht::InfoHash*>(h);
+    auto filter = reinterpret_cast<const dht::Value::Filter*>(h);
+    dht::Where where = dht::Where(w);
+    auto fret = new std::future<size_t>;
+    *fret = runner->listen(*hash, [
+        cb,
+        cb_user_data,
+        guard = done_cb ? std::make_shared<ScopeGuardCb>(done_cb, cb_user_data) : std::shared_ptr<ScopeGuardCb>{}
+    ](const std::vector<std::shared_ptr<dht::Value>>& values, bool expired) {
+        for (const auto& value : values) {
+            if (not cb(reinterpret_cast<const dht_value*>(&value), expired, cb_user_data))
+                return false;
+        }
+        return true;
+    }, [filter_cb, cb_user_data](const dht::Value& value){
+        auto myValue = &value;
+        return filter_cb(reinterpret_cast<dht_value *>(&myValue), cb_user_data);
+    }, where);
+    return (dht_op_token*)fret;
 }
 
 

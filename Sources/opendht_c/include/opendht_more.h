@@ -25,7 +25,8 @@ typedef bool (*dht_filter_cb)(const dht_value* value, void* user_data);
 
 
 // Get
-OPENDHT_C_PUBLIC void dht_runner_get_with_filter(dht_runner* runner, const dht_infohash* hash, dht_get_cb cb, dht_done_cb done_cb, void* cb_user_data, dht_filter_cb filter_cb) ;
+OPENDHT_C_PUBLIC void dht_runner_get_with_filter(dht_runner* r, const dht_infohash* h, dht_get_cb cb, dht_done_cb done_cb, void* cb_user_data, dht_filter_cb filter_cb, const char* where) ;
+OPENDHT_C_PUBLIC dht_op_token* dht_runner_listen_with_filter(dht_runner* r, const dht_infohash* h, dht_value_cb cb, dht_shutdown_cb done_cb, void* cb_user_data, dht_filter_cb filter_cb, const char* w);
 
 // Value
 OPENDHT_C_PUBLIC void dht_value_set_id(dht_value* data, dht_value_id id);
