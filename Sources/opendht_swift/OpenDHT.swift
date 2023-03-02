@@ -9,7 +9,7 @@ import Foundation
 import opendht_c
 
 public struct DHTConfig {
-    public init(threaded: Bool = true, proxy_server: String? = nil, push_node_id: String? = nil, push_token: String? = nil, push_topic: String? = nil, push_platform: String? = nil, peer_discovery: Bool = true, peer_publish: Bool = true, server_ca: Any? = nil, client_identity: Any? = nil, log: Bool = false) {
+    public init(threaded: Bool = true, proxy_server: String? = nil, push_node_id: String? = nil, push_token: String? = nil, push_topic: String? = nil, push_platform: String? = nil, peer_discovery: Bool = true, peer_publish: Bool = true, server_ca: SecCertificate? = nil, log: Bool = false) {
         self.threaded = threaded
         self.proxy_server = proxy_server
         self.push_node_id = push_node_id
@@ -19,7 +19,6 @@ public struct DHTConfig {
         self.peer_discovery = peer_discovery
         self.peer_publish = peer_publish
         self.server_ca = server_ca
-        self.client_identity = client_identity
         self.log = log
     }
     
@@ -31,22 +30,26 @@ public struct DHTConfig {
     let push_platform: String?
     let peer_discovery: Bool
     let peer_publish: Bool
-    let server_ca: Any?
-    let client_identity: Any?
+    let server_ca: SecCertificate?
     let log: Bool
 }
 
 public actor OpenDHT {
     let runner = dht_runner_new()
 
-    public init(port: Int, config: DHTConfig = DHTConfig()) {
-        let secure_config = dht_secure_config()
-        let identity = dht_identity()
+    public init(port: Int, identity: Identity, config: DHTConfig = DHTConfig()) {
+        let secure_config = dht_secure_config()        
         let proxy_server_pointer = config.proxy_server?.cStringPointer
         let push_node_id_pointer = config.push_node_id?.cStringPointer
         let push_token_pointer = config.push_token?.cStringPointer
         let push_topic_pointer = config.push_topic?.cStringPointer
         let push_platform_pointer = config.push_platform?.cStringPointer
+        var server_ca: OpaquePointer?
+        if let server_ca_cert = config.server_ca, let server_ca_data = SecCertificateCopyData(server_ca_cert) as Data? {
+            server_ca = server_ca_data.withUnsafeBytes { pointer in
+                dht_certificate_import(pointer.baseAddress, pointer.count)
+            }
+        }
         var dht_config = dht_runner_config(
             dht_config: secure_config,
             threaded: config.threaded,
@@ -57,7 +60,7 @@ public actor OpenDHT {
             push_platform: push_platform_pointer,
             peer_discovery: config.peer_discovery,
             peer_publish: config.peer_publish,
-            server_ca: nil,
+            server_ca: server_ca,
             client_identity: identity,
             log: config.log
         )
