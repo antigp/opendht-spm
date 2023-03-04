@@ -147,6 +147,14 @@ dht_value_type* dht_valuetype_new(uint16_t id, const char* name, uint32_t durati
                                               })));
     return value_type;
 }
+
+dht_node_info dht_get_node_info(dht_runner* r) {
+    auto runner = reinterpret_cast<dht::DhtRunner*>(r);
+    auto ninf = runner->getNodeInfo();
+    dht_node_info ret;
+    *reinterpret_cast<dht::NodeInfo*>(&ret) = ninf;
+    return ret;
+}
 #ifdef __cplusplus
 }
 #endif

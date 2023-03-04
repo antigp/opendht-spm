@@ -43,6 +43,31 @@ typedef bool (*dht_store_policy)(dht_infohash key, const dht_value* value, const
 typedef bool (*dht_edit_policy)(dht_infohash key, const dht_value* old_value, const dht_value* new_value, const dht_infohash from, const struct sockaddr* addr, socklen_t addr_len, void* cb_user_data);
 OPENDHT_C_PUBLIC dht_value_type* dht_valuetype_new(uint16_t id, const char* name, uint32_t duration, dht_store_policy sp, dht_edit_policy ep, void* cb_user_data);
 
+// Node status
+typedef struct dht_node_status dht_node_status;
+struct OPENDHT_PUBLIC dht_node_status {
+    unsigned good_nodes;
+    unsigned dubious_nodes;
+    unsigned cached_nodes;
+    unsigned incoming_nodes;
+    unsigned table_depth;
+    unsigned searches;
+    unsigned node_cache_size;
+};
+
+typedef struct dht_node_info dht_node_info;
+struct OPENDHT_PUBLIC dht_node_info {
+    dht_infohash id;
+    dht_infohash node_id;
+    dht_node_status ipv4;
+    dht_node_status ipv6;
+    size_t ongoing_ops;
+    size_t storage_values;
+    size_t storage_size;
+    in_port_t bound4;
+    in_port_t bound6;
+};
+OPENDHT_C_PUBLIC dht_node_info dht_get_node_info(dht_runner* r);
 
 #ifdef __cplusplus
 }

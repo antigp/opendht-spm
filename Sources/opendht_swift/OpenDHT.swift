@@ -79,6 +79,10 @@ public actor OpenDHT {
     public func register(type: ValueType) {
         dht_register_value_type(runner, type.pointer);
     }
+    
+    public func nodeInfo() -> dht_node_info {
+        dht_get_node_info(runner)
+    }
 }
 
 
