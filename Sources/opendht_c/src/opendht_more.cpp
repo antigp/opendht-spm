@@ -155,6 +155,18 @@ dht_node_info dht_get_node_info(dht_runner* r) {
     *reinterpret_cast<dht::NodeInfo*>(&ret) = ninf;
     return ret;
 }
+
+void dht_on_status_changed(dht_runner* r, dht_change_status done_cb, void* cb_user_data) {
+    auto runner = reinterpret_cast<dht::DhtRunner*>(r);
+    runner->setOnStatusChanged([done_cb, cb_user_data](dht::NodeStatus ipv4, dht::NodeStatus ipv6){
+        if (done_cb) {
+            auto ipv4_str = statusToStr(ipv4);
+            auto ipv6_str = statusToStr(ipv6);
+            done_cb(ipv4_str, ipv6_str, cb_user_data);
+        }
+    });
+}
+
 #ifdef __cplusplus
 }
 #endif

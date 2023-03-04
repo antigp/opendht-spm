@@ -80,8 +80,29 @@ public actor OpenDHT {
         dht_register_value_type(runner, type.pointer);
     }
     
-    public func nodeInfo() -> dht_node_info {
+    public func nodeInfo() -> NodeInfo {
         dht_get_node_info(runner)
+    }
+    
+    public func onChange(status: @escaping (_ ipv4: NodeStatus, _ ipv6: NodeStatus) -> ()) {
+        class CResultWrapper: NSObject {
+            let statusChange: (_ ipv4: NodeStatus, _ ipv6: NodeStatus) -> ()
+            init(statusChange: @escaping (NodeStatus, NodeStatus) -> Void) {
+                self.statusChange = statusChange
+            }
+        }
+        let wrapper = CResultWrapper(statusChange: status)
+        let pointer = Unmanaged.passRetained(wrapper).toOpaque()
+        dht_on_status_changed(runner, { ipv4_c_str, ipv6_c_str, pointer in
+            if let ipv4_c_str = ipv4_c_str,
+                let ipv6_c_str = ipv6_c_str,
+                let ipv4 = NodeStatus(rawValue: String(cString: ipv4_c_str)),
+                let ipv6 = NodeStatus(rawValue: String(cString: ipv6_c_str)),
+                let swiftObj = pointer {
+                let wrapper = Unmanaged<CResultWrapper>.fromOpaque(swiftObj).takeUnretainedValue()
+                wrapper.statusChange(ipv4, ipv6)
+            }
+        }, pointer);
     }
 }
 

@@ -69,6 +69,8 @@ struct OPENDHT_PUBLIC dht_node_info {
 };
 OPENDHT_C_PUBLIC dht_node_info dht_get_node_info(dht_runner* r);
 
+typedef void (*dht_change_status)(const char* ipv4, const char* ipv6, void* user_data);
+OPENDHT_C_PUBLIC void dht_on_status_changed(dht_runner* r, dht_change_status done_cb, void* cb_user_data);
 #ifdef __cplusplus
 }
 #endif
