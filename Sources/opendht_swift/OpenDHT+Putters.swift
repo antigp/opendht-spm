@@ -21,6 +21,7 @@ extension OpenDHT {
         }
     }
     
+    @discardableResult
     public func put(id: InfoHash, value: Value, permament: Bool = true) async throws -> Bool {
         return await withCheckedContinuation { continuation in
             let value = value.pointer
@@ -40,6 +41,7 @@ extension OpenDHT {
         }
     }
     
+    @discardableResult
     public func putEncrypted(id: InfoHash, to: InfoHash, value: Value, permament: Bool = true) async throws -> Bool {
         return await withCheckedContinuation { continuation in
             let value = value.pointer
@@ -60,6 +62,7 @@ extension OpenDHT {
         }
     }
     
+    @discardableResult
     public func putSigned(id: InfoHash, value: Value, permament: Bool = true) async throws -> Bool {
         return await withCheckedContinuation { continuation in
             let value = value.pointer

@@ -36,9 +36,16 @@ public struct DHTConfig {
 
 public actor OpenDHT {
     let runner = dht_runner_new()
-
-    public init(port: Int, identity: Identity, config: DHTConfig = DHTConfig()) {
-        let secure_config = dht_secure_config()        
+    let config: DHTConfig
+    let port: UInt16
+    
+    public init(port: UInt16 = 0,  config: DHTConfig = DHTConfig()) {
+        self.port = port
+        self.config = config
+    }
+    
+    public func run(identity: Identity) {
+        let secure_config = dht_secure_config()
         let proxy_server_pointer = config.proxy_server?.cStringPointer
         let push_node_id_pointer = config.push_node_id?.cStringPointer
         let push_token_pointer = config.push_token?.cStringPointer
@@ -70,6 +77,28 @@ public actor OpenDHT {
         push_token_pointer?.deallocate()
         push_topic_pointer?.deallocate()
         push_platform_pointer?.deallocate()
+    }
+    
+    public func shutdown() async {
+        class CResultWrapper: NSObject {
+            let completion: () -> Void
+            init(completion: @escaping () -> Void) {
+                self.completion = completion
+            }
+        }
+        await withCheckedContinuation { continuation in
+            let wrapper = CResultWrapper {
+                continuation.resume()
+            }
+            let pointer = Unmanaged.passRetained(wrapper).toOpaque()
+            dht_runner_shutdown(runner, { pointer in
+                if let continuationPointer = pointer {
+                    let continuation = Unmanaged<CResultWrapper>.fromOpaque(continuationPointer).takeUnretainedValue()
+                    continuation.completion()
+                }
+            }, pointer)
+            return
+        }
     }
     
     public func bootstrap(server: String, port: Int) {

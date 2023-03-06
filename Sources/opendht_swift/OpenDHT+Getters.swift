@@ -90,7 +90,7 @@ extension OpenDHT {
         }
     }
     
-    func listen(id: InfoHash, limit: Int? = nil, filter: @escaping @Sendable (Value) -> Bool = { _ in true }, where: String = "") async -> AsyncThrowingStream<Value, Error> {
+    public func listen(id: InfoHash, limit: Int? = nil, filter: @escaping @Sendable (Value) -> Bool = { _ in true }, where: String = "") async -> AsyncThrowingStream<Value, Error> {
         enum ResultError: Error {
             case unknown
         }
