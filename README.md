@@ -1,4 +1,4 @@
-# SPM OpenDHT
+# SPM OpenDHT + Swift wrapper
 
 ### Swift Package Manager
 
@@ -10,6 +10,8 @@ You can also manually add the package to your Package.swift file:
 
 And add to dependecies
 ```swift
+.product(name: "opendht_swift", package: "opendht-spm")
+or
 .product(name: "opendht_c", package: "opendht-spm")
 or (only experemental)
 .product(name: "opendht_cpp", package: "opendht-spm")
