@@ -9,6 +9,7 @@
 #include "opendht_more.h"
 
 #include <opendht.h>
+#include <opendht/indexation/pht.h>
 #include <opendht/log.h>
 
 using ValueSp = std::shared_ptr<dht::Value>;

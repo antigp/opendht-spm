@@ -1,4 +1,4 @@
 module opendht_cpp [system] {
-  umbrella header "opendht.h"
+  umbrella header "opendht_cpp_unbrella.h"
   export *
 }

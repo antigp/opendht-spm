@@ -48,6 +48,7 @@ let package = Package(
             sources: ["src"],
             cxxSettings: [
                 .define("OPENDHT_PEER_DISCOVERY"),
+                .define("OPENDHT_INDEXATION"),
                 .headerSearchPath("include/opendht"),
                 .headerSearchPath("../../Frameworks/nettle.xcframework/ios-arm64/nettle.framework/Headers"),
                 .headerSearchPath("../../Frameworks/libtasn1.xcframework/ios-arm64/libtasn1.framework/Headers"),
@@ -69,10 +70,12 @@ let package = Package(
             ],
             sources: ["src"],
             cSettings: [
-                .define("OPENDHT_PEER_DISCOVERY")
+                .define("OPENDHT_PEER_DISCOVERY"),
+                .define("OPENDHT_INDEXATION")
             ],
             cxxSettings: [
                 .define("OPENDHT_PEER_DISCOVERY"),
+                .define("OPENDHT_INDEXATION"),
                 .headerSearchPath("include"),
                 .headerSearchPath("../../Frameworks/gnutls.xcframework/ios-arm64/gnutls.framework/Headers"),
             ]
