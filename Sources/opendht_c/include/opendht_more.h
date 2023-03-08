@@ -71,6 +71,24 @@ OPENDHT_C_PUBLIC dht_node_info dht_get_node_info(dht_runner* r);
 
 typedef void (*dht_change_status)(const char* ipv4, const char* ipv6, void* user_data);
 OPENDHT_C_PUBLIC void dht_on_status_changed(dht_runner* r, dht_change_status done_cb, void* cb_user_data);
+
+
+//PHT
+typedef struct PHTKeySpecValue
+{
+    const char* key;
+    size_t lenght;
+} PHTKeySpecValue;
+
+typedef struct PHTKeySpecInfo
+{
+    // Contains an array of pointers to items.
+    PHTKeySpecValue* items;
+    int count;
+} PHTKeySpecInfo;
+typedef struct dht_pht dht_pht;
+
+dht_pht* dht_create_pht(dht_runner* r, char *name, PHTKeySpecInfo info);
 #ifdef __cplusplus
 }
 #endif

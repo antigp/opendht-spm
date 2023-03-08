@@ -14,6 +14,7 @@
 
 using ValueSp = std::shared_ptr<dht::Value>;
 using ValueTypeSp = std::shared_ptr<dht::ValueType>;
+using PhtSp = std::shared_ptr<dht::indexation::Pht>;
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,8 +46,8 @@ void dht_runner_get_with_filter(dht_runner* r, const dht_infohash* h, dht_get_cb
 
 struct ScopeGuardCb {
     ScopeGuardCb(dht_shutdown_cb cb, void* data)
-     : onDestroy(cb), userData(data) {}
-
+    : onDestroy(cb), userData(data) {}
+    
     ~ScopeGuardCb() {
         if (onDestroy)
             onDestroy((void*)userData);
@@ -118,34 +119,34 @@ void dht_register_value_type(dht_runner* r, dht_value_type* t) {
 
 dht_value_type* dht_valuetype_new(uint16_t id, const char* name, uint32_t duration, dht_store_policy sp, dht_edit_policy ep, void* cb_user_data) {
     auto value_type = reinterpret_cast<dht_value_type*>(new ValueTypeSp(std::make_shared<dht::ValueType>(
-                                              id,
-                                              name,
-                                              std::chrono::seconds(duration),
-                                              [cb_user_data, sp](dht::InfoHash k, std::shared_ptr<dht::Value>& value, const dht::InfoHash& from, const dht::SockAddr& addr){
-                                                  dht_infohash key;
-                                                  *reinterpret_cast<dht::InfoHash*>(&key) = k;
-                                                  return sp(
-                                                            key,
-                                                            reinterpret_cast<const dht_value*>(&value),
-                                                            dht_infohash_to_c(from),
-                                                            addr.get(),
-                                                            addr.getLength(),
-                                                            cb_user_data
-                                                            );
-                                              },
-                                              [cb_user_data, ep](dht::InfoHash k, const std::shared_ptr<dht::Value>& old_val, std::shared_ptr<dht::Value>& new_val, const dht::InfoHash& from, const dht::SockAddr& addr) {
-                                                  dht_infohash key;
-                                                  *reinterpret_cast<dht::InfoHash*>(&key) = k;
-                                                  return ep(
-                                                            key,
-                                                            reinterpret_cast<const dht_value*>(&old_val),
-                                                            reinterpret_cast<const dht_value*>(&new_val),
-                                                            dht_infohash_to_c(from),
-                                                            (struct sockaddr *) addr.get(),
-                                                            addr.getLength(),
-                                                            cb_user_data
-                                                            );
-                                              })));
+                                                                                                         id,
+                                                                                                         name,
+                                                                                                         std::chrono::seconds(duration),
+                                                                                                         [cb_user_data, sp](dht::InfoHash k, std::shared_ptr<dht::Value>& value, const dht::InfoHash& from, const dht::SockAddr& addr){
+                                                                                                             dht_infohash key;
+                                                                                                             *reinterpret_cast<dht::InfoHash*>(&key) = k;
+                                                                                                             return sp(
+                                                                                                                       key,
+                                                                                                                       reinterpret_cast<const dht_value*>(&value),
+                                                                                                                       dht_infohash_to_c(from),
+                                                                                                                       addr.get(),
+                                                                                                                       addr.getLength(),
+                                                                                                                       cb_user_data
+                                                                                                                       );
+                                                                                                         },
+                                                                                                         [cb_user_data, ep](dht::InfoHash k, const std::shared_ptr<dht::Value>& old_val, std::shared_ptr<dht::Value>& new_val, const dht::InfoHash& from, const dht::SockAddr& addr) {
+                                                                                                             dht_infohash key;
+                                                                                                             *reinterpret_cast<dht::InfoHash*>(&key) = k;
+                                                                                                             return ep(
+                                                                                                                       key,
+                                                                                                                       reinterpret_cast<const dht_value*>(&old_val),
+                                                                                                                       reinterpret_cast<const dht_value*>(&new_val),
+                                                                                                                       dht_infohash_to_c(from),
+                                                                                                                       (struct sockaddr *) addr.get(),
+                                                                                                                       addr.getLength(),
+                                                                                                                       cb_user_data
+                                                                                                                       );
+                                                                                                         })));
     return value_type;
 }
 
@@ -166,6 +167,17 @@ void dht_on_status_changed(dht_runner* r, dht_change_status done_cb, void* cb_us
             done_cb(ipv4_str, ipv6_str, cb_user_data);
         }
     });
+}
+
+dht_pht* dht_create_pht(dht_runner* r, char *name, PHTKeySpecInfo info) {
+    auto runner = reinterpret_cast<dht::DhtRunner*>(r);
+    dht::indexation::Pht::KeySpec ks;
+    for (int i = 0; i < info.count; i++) {
+        ks.emplace(std::make_pair(info.items[i].key, info.items[i].lenght));
+    }
+    std::shared_ptr<dht::DhtRunner> sharedRunner(runner);
+    auto pht = dht::indexation::Pht("", ks, sharedRunner);
+    return reinterpret_cast<dht_pht*>(new PhtSp(std::make_shared<dht::indexation::Pht>(name, ks, sharedRunner)));
 }
 
 #ifdef __cplusplus
