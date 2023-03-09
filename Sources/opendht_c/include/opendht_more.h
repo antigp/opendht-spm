@@ -88,7 +88,32 @@ typedef struct PHTKeySpecInfo
 } PHTKeySpecInfo;
 typedef struct dht_pht dht_pht;
 
-dht_pht* dht_create_pht(dht_runner* r, char *name, PHTKeySpecInfo info);
+typedef struct PHTIndexValue
+{
+    dht_infohash hash;
+    uint64_t objectId;
+} PHTIndexValue;
+
+typedef struct PHTKeyData
+{
+    // Contains an array of pointers to items.
+    char* key;
+    const uint8_t* data;
+    size_t dataSize;
+} PHTKeyData;
+
+typedef struct PHTKeyArray
+{
+    // Contains an array of pointers to items.
+    PHTKeyData* items;
+    int count;
+} PHTKeyArray;
+typedef void (*pht_value_cb)(PHTIndexValue value, void* user_data);
+typedef void (*dht_done_cb)(bool ok, void* user_data);
+
+OPENDHT_C_PUBLIC dht_pht* dht_create_pht(dht_runner* r, char *name, PHTKeySpecInfo info);
+OPENDHT_C_PUBLIC void pht_insert(dht_pht* p, PHTKeyArray k, PHTIndexValue v, dht_done_cb done_cb, void *user_data);
+OPENDHT_C_PUBLIC void pht_lookup(dht_pht* p, PHTKeyArray k, pht_value_cb value_cb, dht_done_cb done_cb, bool exact_match, void *user_data);
 #ifdef __cplusplus
 }
 #endif

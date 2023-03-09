@@ -9,7 +9,8 @@ import Foundation
 import opendht_c
 
 public struct Value: Sendable {
-    public var id: UInt64?
+    public typealias ID = UInt64
+    public var id: ID?
     public var data: Data
     var owner: OpaquePointer?
     public var recipient: dht_infohash?

@@ -176,10 +176,44 @@ dht_pht* dht_create_pht(dht_runner* r, char *name, PHTKeySpecInfo info) {
         ks.emplace(std::make_pair(info.items[i].key, info.items[i].lenght));
     }
     std::shared_ptr<dht::DhtRunner> sharedRunner(runner);
-    auto pht = dht::indexation::Pht("", ks, sharedRunner);
-    return reinterpret_cast<dht_pht*>(new PhtSp(std::make_shared<dht::indexation::Pht>(name, ks, sharedRunner)));
+    return reinterpret_cast<dht_pht*>(new dht::indexation::Pht {name, ks, sharedRunner});
 }
 
+void pht_insert(dht_pht* p, PHTKeyArray k, PHTIndexValue v, dht_done_cb done_cb, void *user_data) {
+    auto pht = reinterpret_cast<dht::indexation::Pht*>(p);
+    dht::indexation::Pht::Key key;
+    for (int i = 0; i < k.count; i++) {
+        std::vector<uint8_t> data {k.items[i].data, k.items[i].data + k.items[i].dataSize };
+        key.emplace(std::make_pair(k.items[i].key, data));
+    }
+    
+    dht::InfoHash hash { v.hash.d, HASH_LEN };
+    dht::indexation::Value value {hash, v.objectId};
+    
+    pht->insert(key, value, [done_cb, user_data](bool success) {
+        done_cb(success, user_data);
+    });
+}
+
+void pht_lookup(dht_pht* p, PHTKeyArray k, pht_value_cb value_cb, dht_done_cb done_cb, bool exact_match, void *user_data) {
+    auto pht = reinterpret_cast<dht::indexation::Pht*>(p);
+    dht::indexation::Pht::Key key;
+    for (int i = 0; i < k.count; i++) {
+        std::vector<uint8_t> data {k.items[i].data, k.items[i].data + k.items[i].dataSize };
+        key.emplace(std::make_pair(k.items[i].key, data));
+    }
+    
+    pht->lookup(key, [user_data, value_cb](std::vector<std::shared_ptr<dht::indexation::Value>>& values, dht::indexation::Prefix prefix) {
+        for (auto v : values) {
+            dht_infohash hash;
+            *reinterpret_cast<dht::InfoHash*>(&hash) = v->first;
+            PHTIndexValue value {hash, v->second};
+            value_cb(value, user_data);
+        }
+    }, [done_cb, user_data](bool ok){
+        done_cb(ok, user_data);
+    }, exact_match);
+}
 #ifdef __cplusplus
 }
 #endif

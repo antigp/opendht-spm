@@ -45,7 +45,7 @@ let package = Package(
                 "src/dht_proxy_server.cpp",
                 "src/dht_proxy_client.cpp"
             ],
-            sources: ["src"],
+            sources: ["src", "src/indexation"],
             cxxSettings: [
                 .define("OPENDHT_PEER_DISCOVERY"),
                 .define("OPENDHT_INDEXATION"),
