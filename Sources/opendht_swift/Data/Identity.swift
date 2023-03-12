@@ -15,6 +15,8 @@ extension Identity {
         return dht_identity()
     }
     
+    /// privateKey - RSA_sha512
+    /// certificate - signed certifacte for private key
     static public func load(privateKey: SecKey, certificate: SecCertificate) throws -> Self {
         enum RegisterErrors: Error {
             case failExportPrivKey(String?)
@@ -26,7 +28,7 @@ extension Identity {
         guard let privateKeyBits = SecKeyCopyExternalRepresentation(privateKey, &error) as Data? else {
             throw RegisterErrors.failExportPrivKey(error?.takeRetainedValue().localizedDescription)
         }
-        identity.privatekey = privateKeyBits.withUnsafeBytes { pointer in
+        identity.privatekey = [UInt8](privateKeyBits).withUnsafeBytes { pointer in
             dht_privatekey_import(pointer.baseAddress, pointer.count, nil)
         }
         guard let certificateKeyBits = SecCertificateCopyData(certificate) as Data? else {

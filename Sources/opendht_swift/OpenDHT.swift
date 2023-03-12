@@ -44,8 +44,8 @@ public actor OpenDHT {
         self.config = config
     }
     
-    public func run(identity: Identity) {
-        let secure_config = dht_secure_config()
+    public func run(nodeHash: dht_infohash = .random(), identity: Identity) {
+        var secure_config = dht_secure_config()
         let proxy_server_pointer = config.proxy_server?.cStringPointer
         let push_node_id_pointer = config.push_node_id?.cStringPointer
         let push_token_pointer = config.push_token?.cStringPointer
@@ -57,6 +57,14 @@ public actor OpenDHT {
                 dht_certificate_import(pointer.baseAddress, pointer.count)
             }
         }
+        secure_config.id = identity
+        secure_config.node_config = .init(
+            node_id: nodeHash,
+            network: 0,
+            is_bootstrap: false,
+            maintain_storage: true,
+            persist_path: "".cStringPointer
+        )
         var dht_config = dht_runner_config(
             dht_config: secure_config,
             threaded: config.threaded,
